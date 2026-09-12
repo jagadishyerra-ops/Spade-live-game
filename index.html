@@ -238,7 +238,16 @@
 
     <button id="openTutorialBtn" style="width:100%;margin-bottom:8px;">&#128218; How to play</button>
     <button id="openManageBtn" style="width:100%;margin-bottom:8px;">Manage rooms</button>
-    <button id="openReactionSettingsBtn" style="width:100%;">&#128274; Customize reactions</button>
+    <button id="openReactionSettingsBtn" style="width:100%;margin-bottom:8px;">&#128274; Customize reactions</button>
+    <button id="openWhatsNewBtn" style="width:100%;">&#128203; What's new</button>
+  </div>
+
+  <div class="overlay" id="whatsNewOverlay" style="display:none;">
+    <div class="modal" style="text-align:left;">
+      <h2 style="font-size:18px;margin-bottom:8px;">What's new</h2>
+      <div id="whatsNewList" style="font-size:13px;line-height:1.6;"></div>
+      <button id="whatsNewCloseBtn" style="width:100%;margin-top:10px;">Close</button>
+    </div>
   </div>
 
   <div class="overlay" id="reactionPwOverlay" style="display:none;">
@@ -2314,6 +2323,20 @@ document.getElementById('openTutorialBtn').addEventListener('click', () => {
 });
 document.getElementById('tutorialCloseBtn').addEventListener('click', () => {
   document.getElementById('tutorialOverlay').style.display = 'none';
+});
+
+// Version history — add a new entry to the top whenever a change ships
+const CHANGELOG = [
+  { date: '2026-09-12', note: 'Added win/loss streaks — see your current streak during the game and in the end-of-game recap.' },
+  { date: '2026-09-12', note: 'Initial release — live multiplayer Spades with bidding, tricks, scoring, chat, reactions, custom sounds, and dark mode.' }
+];
+document.getElementById('openWhatsNewBtn').addEventListener('click', () => {
+  const box = document.getElementById('whatsNewList');
+  box.innerHTML = CHANGELOG.map(e => '<p><b>' + e.date + '</b><br>' + e.note + '</p>').join('');
+  document.getElementById('whatsNewOverlay').style.display = 'flex';
+});
+document.getElementById('whatsNewCloseBtn').addEventListener('click', () => {
+  document.getElementById('whatsNewOverlay').style.display = 'none';
 });
 
 document.getElementById('openManageBtn').addEventListener('click', () => {

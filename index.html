@@ -99,14 +99,13 @@
     z-index: 15; text-align: center; pointer-events: none;
     animation: floatUpFade 1.8s ease-out forwards;
   }
-  .screen-reaction-emoji { font-size: 64px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+  .screen-reaction-emoji { font-size: 96px; line-height: 1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
   .screen-reaction-name { font-size: 12px; font-weight: 600; color: #1a1a1a; background: rgba(255,255,255,0.85); border-radius: 999px; padding: 2px 10px; margin-top: 4px; display: inline-block; }
   @keyframes floatUpFade {
     0% { opacity: 0; transform: translate(-50%, 20px) scale(0.6); }
-    15% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
-    30% { transform: translate(-50%, -10px) scale(1); }
-    80% { opacity: 1; transform: translate(-50%, -140px) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -180px) scale(0.9); }
+    15% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    80% { opacity: 1; transform: translate(-50%, -140px) scale(1.4); }
+    100% { opacity: 0; transform: translate(-50%, -180px) scale(1.5); }
   }
   .chat-panel {
     position: fixed; bottom: 82px; right: 16px; width: min(320px, 88vw);

@@ -331,7 +331,6 @@
         <button id="gameLeaveBtn">Leave</button>
       </div>
     </div>
-    <span class="time-chip" id="streakBadge" style="display:none;margin:0 0 8px;"></span>
     <div class="bonus-banner" id="gameBonusBanner" style="display:none;">&#9889; Fastest player bonus enabled — +10 points at game end</div>
 
     <div class="status-bar" id="statusBar"></div>
@@ -493,30 +492,6 @@ document.getElementById('muteToggle').addEventListener('click', () => {
 db.ref('.info/connected').on('value', snap => {
   document.getElementById('offlineBanner').style.display = (snap.val() === false) ? 'block' : 'none';
 });
-
-// Win/loss streak — tracked per player name, on this device, across games
-function streakKey(name){ return 'spade-streak-' + name.trim().toLowerCase(); }
-function getStreak(name){
-  try{ return parseInt(localStorage.getItem(streakKey(name)), 10) || 0; }catch(e){ return 0; }
-}
-function recordStreakResult(name, won){
-  const cur = getStreak(name);
-  const next = won ? (cur > 0 ? cur + 1 : 1) : (cur < 0 ? cur - 1 : -1);
-  try{ localStorage.setItem(streakKey(name), String(next)); }catch(e){}
-}
-function streakLabel(s){
-  if(s > 0) return '\u{1F525} ' + s + ' game win streak';
-  if(s < 0) return '❄️ ' + Math.abs(s) + ' game loss streak';
-  return '';
-}
-function renderStreakBadge(){
-  const el = document.getElementById('streakBadge');
-  if(!el) return;
-  const me = state.players && state.players.find(p => p.id === myId);
-  const label = me ? streakLabel(getStreak(me.name)) : '';
-  el.textContent = label;
-  el.style.display = label ? 'inline-block' : 'none';
-}
 
 const NROUNDS = 13;
 const SUITS = ['S','H','D','C'];
@@ -1755,22 +1730,15 @@ function renderGameDone(){
   doneCard.style.display = state.phase === 'game-done' ? 'block' : 'none';
   if(state.phase !== 'game-done') return;
 
-  const { totals, roundNums, fastestId } = computeFinalTotals();
-  const winner = totals[0];
-  const swing = findBiggestSwing(roundNums);
-  const me = state.players.find(p => p.id === myId);
-
   if(!gameDoneCelebrated){
     gameDoneCelebrated = true;
     launchConfetti(true);
     setTimeout(() => launchConfetti(true), 500);
-
-    if(me){
-      const myTotal = totals.find(t => t.id === myId);
-      if(myTotal) recordStreakResult(me.name, myTotal.total >= winner.total);
-      renderStreakBadge();
-    }
   }
+
+  const { totals, roundNums, fastestId } = computeFinalTotals();
+  const winner = totals[0];
+  const swing = findBiggestSwing(roundNums);
 
   let html = '<p class="sub" style="text-align:center;font-size:20px;margin:6px 0 14px;">\u{1F3C6} <b>' + winner.name + '</b> wins the game!</p>';
   html += '<div id="recapText" style="font-size:13px;line-height:1.7;">';
@@ -1783,10 +1751,6 @@ function renderGameDone(){
   if(fastestId){
     const fp = state.players.find(p => p.id === fastestId);
     if(fp) html += 'Fastest player: ' + fp.name + ' (+10 bonus)<br>';
-  }
-  if(me){
-    const myStreakLabel = streakLabel(getStreak(me.name));
-    if(myStreakLabel) html += '<br>Your streak: ' + myStreakLabel + '<br>';
   }
   html += '</div>';
   html += '<button id="copyRecapBtn" style="width:100%;margin-top:12px;">Copy recap to share</button>';
@@ -1815,7 +1779,6 @@ function renderGameDone(){
 function renderAll(){
   document.getElementById('gameCodeLabel').textContent = roomCode;
   document.getElementById('gameBonusBanner').style.display = state.config.fastestBonus ? 'block' : 'none';
-  renderStreakBadge();
   renderStatusBar();
   renderPlayerTimes();
   renderSpectators();
@@ -2327,7 +2290,6 @@ document.getElementById('tutorialCloseBtn').addEventListener('click', () => {
 
 // Version history — add a new entry to the top whenever a change ships
 const CHANGELOG = [
-  { date: '2026-09-12', note: 'Added win/loss streaks — see your current streak during the game and in the end-of-game recap.' },
   { date: '2026-09-12', note: 'Initial release — live multiplayer Spades with bidding, tricks, scoring, chat, reactions, custom sounds, and dark mode.' }
 ];
 document.getElementById('openWhatsNewBtn').addEventListener('click', () => {

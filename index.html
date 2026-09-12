@@ -44,6 +44,13 @@
     background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
     padding: 10px 12px; margin-bottom: 8px;
   }
+  .card-create { border-left: 3px solid #EF9F27; }
+  .card-join { background: var(--surface-2); border-style: dashed; }
+  .section-divider {
+    display: flex; align-items: center; gap: 10px; margin: 6px 0 14px;
+    color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
   .banner { background: #1a1a1a; border-radius: 10px; padding: 0.7rem 0.8rem; display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
   .banner svg { width: 26px; height: 26px; }
   .banner p.title { color: #fff; font-size: 15px; font-weight: 600; margin: 0; }
@@ -197,8 +204,8 @@
       </div>
     </div>
 
-    <div class="card-el">
-      <h2>Create a new game</h2>
+    <div class="card-el card-create">
+      <h2>&#10133; Create a new game</h2>
       <p class="sub" style="margin-bottom:10px;">Leave the code blank for a random one.</p>
       <div class="add-row" style="margin-bottom:8px;">
         <input type="text" id="createCodeInput" placeholder="Room code (optional)">
@@ -222,8 +229,10 @@
       <button class="primary" id="createRoomBtn" style="width:100%;font-size:18px;padding:12px;">Create game</button>
     </div>
 
-    <div class="card-el">
-      <h2>Join an existing game</h2>
+    <div class="section-divider">or</div>
+
+    <div class="card-el card-join">
+      <h2>&#128273; Join an existing game</h2>
       <div class="add-row" style="margin-bottom:8px;">
         <input type="text" id="joinCodeInput" placeholder="Room code">
       </div>

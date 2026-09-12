@@ -85,6 +85,18 @@
   .top-toggle-bar { position: fixed; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 8; }
   .top-toggle-btn { width: 34px; height: 34px; border-radius: 50%; padding: 0; font-size: 15px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
   .offline-banner { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); background: #c0392b; color: white; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; z-index: 8; }
+  .nudge-toast {
+    position: fixed; top: 50px; left: 50%; transform: translateX(-50%);
+    background: #1a1a1a; color: #EF9F27; padding: 8px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 700; z-index: 20; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    animation: nudgeToastPop 2.6s ease-out forwards;
+  }
+  @keyframes nudgeToastPop {
+    0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    85% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  }
   .chat-fab {
     position: fixed; bottom: 20px; right: 20px; width: 52px; height: 52px; border-radius: 50%;
     background: #1a1a1a; color: #EF9F27; font-size: 22px; border: none;
@@ -342,7 +354,8 @@
     <div class="bonus-banner" id="gameBonusBanner" style="display:none;">&#9889; Fastest player bonus enabled — +10 points at game end</div>
 
     <div class="status-bar" id="statusBar"></div>
-    <div id="playerTimes" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px;justify-content:center;"></div>
+    <button id="nudgeBtn" style="width:100%;margin:0 0 8px;display:none;"></button>
+    <div id="playerTimes" style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-bottom:6px;"></div>
     <p class="sub" id="spectatorsLine" style="text-align:center;margin:0 0 6px;display:none;"></p>
 
     <div class="card-el" id="biddingCard" style="display:none;">
@@ -437,6 +450,7 @@
     <button id="muteToggle" class="top-toggle-btn">&#128266;</button>
   </div>
   <div class="offline-banner" id="offlineBanner" style="display:none;">&#9889; Reconnecting…</div>
+  <div class="nudge-toast" id="nudgeToast" style="display:none;"></div>
   <div class="offline-banner" id="renderErrorBanner" style="display:none;top:90px;background:#8a5c0d;">&#9888;&#65039; Something glitched — try refreshing the page</div>
 
   <button id="chatToggleBtn" class="chat-fab" style="display:none;">&#128172;<span id="chatDot" class="chat-dot" style="display:none;"></span></button>
@@ -1516,8 +1530,71 @@ function tickTurnTimer(){
     urgentBeepedFor = state.turnStartedAt;
     playPing();
   }
+  renderNudgeButton();
 }
 setInterval(tickTurnTimer, 1000);
+
+// Nudge — let waiting players ping whoever's turn it is
+const NUDGE_COOLDOWN_MS = 15000;
+let lastNudgeSentAt = 0;
+let lastSeenNudgeTs = undefined;
+
+function renderNudgeButton(){
+  const btn = document.getElementById('nudgeBtn');
+  if(!btn || !state) return;
+  const seatIdx = currentActiveSeatIndex();
+  const turnPlayer = seatIdx >= 0 && state.players ? state.players[seatIdx] : null;
+  if(!turnPlayer || amSpectator() || turnPlayer.id === myId){
+    btn.style.display = 'none';
+    return;
+  }
+  btn.style.display = 'block';
+  const remaining = NUDGE_COOLDOWN_MS - (Date.now() - lastNudgeSentAt);
+  if(remaining > 0){
+    btn.disabled = true;
+    btn.textContent = '⏰ Nudged — wait ' + Math.ceil(remaining / 1000) + 's';
+  } else {
+    btn.disabled = false;
+    btn.textContent = '⏰ Nudge ' + turnPlayer.name;
+  }
+}
+
+document.getElementById('nudgeBtn').addEventListener('click', () => {
+  const seatIdx = currentActiveSeatIndex();
+  const turnPlayer = seatIdx >= 0 && state.players ? state.players[seatIdx] : null;
+  if(!turnPlayer || turnPlayer.id === myId) return;
+  if(Date.now() - lastNudgeSentAt < NUDGE_COOLDOWN_MS) return;
+  lastNudgeSentAt = Date.now();
+  const me = myPlayer();
+  saveFields({ nudge: { targetId: turnPlayer.id, fromName: me ? me.name : 'Someone', ts: Date.now() } });
+  renderNudgeButton();
+});
+
+function showNudgeToast(fromName){
+  const el = document.getElementById('nudgeToast');
+  el.textContent = '\u{1F514} ' + fromName + ' is waiting on you!';
+  el.style.display = 'block';
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'nudgeToastPop 2.6s ease-out forwards';
+  setTimeout(() => { el.style.display = 'none'; }, 2600);
+}
+
+function checkNudge(){
+  const n = state.nudge;
+  if(!n) return;
+  if(lastSeenNudgeTs === undefined){
+    lastSeenNudgeTs = n.ts;
+    return;
+  }
+  if(n.ts === lastSeenNudgeTs) return;
+  lastSeenNudgeTs = n.ts;
+  if(n.targetId === myId){
+    playPing();
+    if(navigator.vibrate){ try{ navigator.vibrate([120, 60, 120]); }catch(e){} }
+    showNudgeToast(n.fromName);
+  }
+}
 
 function renderTrick(){
   const card = document.getElementById('trickCard');
@@ -1787,6 +1864,8 @@ function renderGameDone(){
 function renderAll(){
   document.getElementById('gameCodeLabel').textContent = roomCode;
   document.getElementById('gameBonusBanner').style.display = state.config.fastestBonus ? 'block' : 'none';
+  checkNudge();
+  renderNudgeButton();
   renderStatusBar();
   renderPlayerTimes();
   renderSpectators();
@@ -1849,6 +1928,8 @@ function attachGameListener(code){
   lastBotAttemptKey = null;
   lastBotAttemptTime = 0;
   wasMyTurn = false;
+  lastSeenNudgeTs = undefined;
+  lastNudgeSentAt = 0;
 
   roomRef.on('value', snap => {
     const val = normalizeState(snap.val());

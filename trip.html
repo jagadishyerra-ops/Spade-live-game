@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thanksgiving Trip – Pick Your Dates</title>
+<style>
+  :root{
+    --bg:#faf7f2;--card:#fff;--ink:#2b2420;--muted:#7a6f66;--line:#e8e0d6;
+    --no:#d9534f;--maybe:#e6a23c;--yes:#3a9d5d;--accent:#b5541c;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#1b1816;--card:#262220;--ink:#f2ece6;--muted:#a79c92;--line:#3a3430;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);}
+  .wrap{max-width:520px;margin:0 auto;padding:16px 14px 40px}
+  h1{font-size:22px;margin:4px 0 2px}
+  h2{font-size:18px;margin:22px 0 8px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+  label.lbl{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  input[type=text]{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+  .day{display:grid;grid-template-columns:78px 1fr 64px;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .day:last-child{border-bottom:0}
+  .dname{font-weight:600;font-size:15px;line-height:1.1}
+  .dname small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+  .dname .tg{color:var(--accent);font-size:11px;font-weight:700}
+  input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:28px;background:transparent}
+  input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--no),var(--maybe),var(--yes))}
+  input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--no),var(--maybe),var(--yes))}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--ink);margin-top:-9px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--ink)}
+  .val{font-size:13px;font-weight:700;text-align:center;padding:5px 0;border-radius:8px;color:#fff}
+  .v0{background:var(--no)}.v1{background:var(--maybe)}.v2{background:var(--yes)}
+  .row{display:flex;gap:8px;margin-top:10px}
+  .btn{flex:1;display:block;text-align:center;padding:13px;border-radius:12px;border:0;font-size:16px;font-weight:700;cursor:pointer}
+  .save{background:var(--yes);color:#fff}
+  .save:disabled{opacity:.6}
+  .sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  .mini{flex:0 0 auto;padding:8px 12px;font-size:13px;font-weight:600}
+  .note{font-size:12px;color:var(--muted);margin-top:8px}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{text-align:center;padding:5px 2px}
+  th{font-weight:600;color:var(--muted);font-size:11px}
+  td.n{text-align:left;font-weight:600;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cell{display:inline-block;width:22px;height:22px;border-radius:6px}
+  .score td{font-weight:700;padding-top:8px}
+  .best{font-size:16px;line-height:1.45}
+  .best b{color:var(--yes)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🦃 Thanksgiving Trip</h1>
+  <p class="sub">Slide each day: <span style="color:var(--no)">No</span> · <span style="color:var(--maybe)">Maybe</span> · <span style="color:var(--yes)">Yes</span>, then tap Save. Everyone's answers show up below, live.</p>
+
+  <div class="card">
+    <label class="lbl" for="name">Your name</label>
+    <input id="name" type="text" maxlength="20" placeholder="e.g. Jag" autocomplete="off">
+  </div>
+  <div class="card">
+    <div class="row" style="margin:0 0 6px">
+      <button class="btn sec mini" data-all="2">All Yes</button>
+      <button class="btn sec mini" data-all="1">All Maybe</button>
+      <button class="btn sec mini" data-all="0">All No</button>
+    </div>
+    <div id="days"></div>
+  </div>
+  <div class="row"><button id="save" class="btn save">Save my dates</button></div>
+  <p class="note" id="status">Connecting…</p>
+
+  <h2>Group results <span id="live" class="note"></span></h2>
+  <div class="card" id="out"><p class="note" style="margin:0">No one has answered yet.</p></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDuNrNHKexJC5peHRRzBT-D5Pt7smkUej8",
+  authDomain: "spade-scoreboard-95b9a.firebaseapp.com",
+  databaseURL: "https://spade-scoreboard-95b9a-default-rtdb.firebaseio.com/",
+  projectId: "spade-scoreboard-95b9a",
+  storageBucket: "spade-scoreboard-95b9a.firebasestorage.app",
+  messagingSenderId: "910649071450",
+  appId: "1:910649071450:web:a5c6115bbdaa6413678563"
+};
+firebase.initializeApp(firebaseConfig);
+const POLL = firebase.database().ref("tripPolls/thanksgiving-2026/people");
+
+const DAYS = [
+  ["Sat","Nov 21"],["Sun","Nov 22"],["Mon","Nov 23"],["Tue","Nov 24"],["Wed","Nov 25"],
+  ["Thu","Nov 26","Thanksgiving"],["Fri","Nov 27"],["Sat","Nov 28"],["Sun","Nov 29"]
+];
+const LABEL = ["No","Maybe","Yes"];
+const COLOR = ["var(--no)","var(--maybe)","var(--yes)"];
+const vals = DAYS.map(()=>1);
+let people = {};
+const $ = s=>document.querySelector(s);
+function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+const keyOf = n => n.trim().toLowerCase().replace(/[.#$\[\]\/\s]+/g,"-").slice(0,30);
+
+try{const d=JSON.parse(load("tripDraft")||"null"); if(d){ if(d.name)$("#name").value=d.name; if(Array.isArray(d.v)&&d.v.length===DAYS.length) d.v.forEach((x,i)=>vals[i]=x);} }catch(e){}
+
+function renderDays(){
+  $("#days").innerHTML = DAYS.map((d,i)=>`
+    <div class="day">
+      <div class="dname">${d[0]}<small>${d[1]}</small>${d[2]?`<span class="tg">${d[2]}</span>`:""}</div>
+      <input type="range" min="0" max="2" step="1" value="${vals[i]}" data-i="${i}" aria-label="${d[0]} ${d[1]}">
+      <div class="val v${vals[i]}" id="v${i}">${LABEL[vals[i]]}</div>
+    </div>`).join("");
+}
+function draft(){ store("tripDraft", JSON.stringify({name:$("#name").value, v:vals})); }
+function dirty(){ $("#save").textContent="Save my dates"; }
+renderDays();
+
+$("#days").addEventListener("input",e=>{
+  if(e.target.type!=="range")return;
+  const i=+e.target.dataset.i, v=+e.target.value; vals[i]=v;
+  const el=$("#v"+i); el.textContent=LABEL[v]; el.className="val v"+v; draft(); dirty();
+});
+document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()=>{
+  vals.fill(+b.dataset.all); renderDays(); draft(); dirty();
+}));
+let loadedFor=null;
+$("#name").addEventListener("input",()=>{ draft(); loadMine(); });
+function loadMine(){
+  const k=keyOf($("#name").value||""); const p=k&&people[k];
+  if(p && Array.isArray(p.v) && loadedFor!==k){
+    loadedFor=k; p.v.forEach((x,i)=>vals[i]=x); renderDays(); draft();
+    $("#save").textContent="Update my dates";
+  }
+}
+
+$("#save").addEventListener("click",()=>{
+  const name=$("#name").value.trim();
+  if(!name){ toast("Add your name first"); $("#name").focus(); return; }
+  $("#save").disabled=true;
+  const k=keyOf(name); loadedFor=k;
+  POLL.child(k).set({name, v:vals.slice(), t:Date.now()})
+    .then(()=>{ toast("Saved ✓"); $("#save").textContent="Saved ✓ (tap to update)"; })
+    .catch(err=>{ toast("Couldn't save"); $("#status").textContent="Save failed: "+err.message; })
+    .finally(()=>{ $("#save").disabled=false; });
+});
+
+firebase.database().ref(".info/connected").on("value",s=>{
+  $("#status").textContent = s.val() ? "Connected. Your answers save for the whole group; type the same name later to change them." : "Connecting…";
+});
+let first=true;
+POLL.on("value",snap=>{
+  people = snap.val()||{};
+  if(first){ first=false; loadMine(); }
+  renderResults();
+}, err=>{ $("#status").textContent="Can't read results: "+err.message; });
+
+function renderResults(){
+  const ppl=Object.values(people).filter(p=>p&&Array.isArray(p.v)&&p.v.length===DAYS.length)
+    .sort((a,b)=>(a.t||0)-(b.t||0));
+  $("#live").textContent = ppl.length ? `· ${ppl.length} answered` : "";
+  if(!ppl.length){ $("#out").innerHTML='<p class="note" style="margin:0">No one has answered yet.</p>'; return; }
+  const n=ppl.length;
+  const score=DAYS.map((_,i)=>ppl.reduce((s,p)=>s+(+p.v[i]||0),0));
+  const allYes=DAYS.map((_,i)=>ppl.every(p=>p.v[i]===2));
+  const noNo=DAYS.map((_,i)=>ppl.every(p=>p.v[i]>0));
+  let best=null;
+  for(let a=0;a<DAYS.length;a++){ if(!noNo[a])continue;
+    let b=a; while(b+1<DAYS.length&&noNo[b+1])b++;
+    const len=b-a+1, sc=score.slice(a,b+1).reduce((x,y)=>x+y,0);
+    if(!best||len>best.len||(len===best.len&&sc>best.sc)) best={a,b,len,sc};
+    a=b;
+  }
+  const yesDays=DAYS.filter((_,i)=>allYes[i]).map(d=>`${d[0]} ${d[1]}`);
+  let summary=`<div class="best">`;
+  if(yesDays.length) summary+=`Everyone says Yes: <b>${yesDays.join(", ")}</b><br>`;
+  if(best) summary+=`Longest stretch with no "No": <b>${DAYS[best.a][0]} ${DAYS[best.a][1]} → ${DAYS[best.b][0]} ${DAYS[best.b][1]}</b> (${best.len} day${best.len>1?"s":""})`;
+  else summary+=`No single day works for everyone yet.`;
+  summary+=`</div>`;
+  const head=`<tr><th></th>${DAYS.map(d=>`<th>${d[0]}<br>${d[1].split(" ")[1]}</th>`).join("")}</tr>`;
+  const rows=ppl.map(p=>`<tr><td class="n">${esc(String(p.name))}</td>${p.v.map(v=>`<td><span class="cell" style="background:${COLOR[v]||"#999"}" title="${LABEL[v]||""}"></span></td>`).join("")}</tr>`).join("");
+  const sc=`<tr class="score"><td class="n">Score</td>${score.map((s,i)=>`<td style="color:${allYes[i]?"var(--yes)":noNo[i]?"var(--ink)":"var(--no)"}">${s}</td>`).join("")}</tr>`;
+  $("#out").innerHTML=summary+`<div style="overflow-x:auto;margin-top:12px"><table>${head}${rows}${sc}</table></div><p class="note">Score: Yes = 2, Maybe = 1, No = 0 (max ${n*2}). Red = someone said No.</p>`;
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+let tt; function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2000);}
+</script>
+</body>
+</html>

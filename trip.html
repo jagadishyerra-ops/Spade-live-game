@@ -217,7 +217,9 @@ const firebaseConfig = {
   appId: "1:910649071450:web:a5c6115bbdaa6413678563"
 };
 firebase.initializeApp(firebaseConfig);
-const POLL = firebase.database().ref("tripPolls/thanksgiving-2026/people");
+// Stored under "games" because the database rules only allow the Spade game's paths.
+const ROOM = firebase.database().ref("games/trip-thanksgiving-2026");
+const POLL = ROOM.child("people");
 
 const FAMILIES = ["Raghu","Srikanth","Srinu","Jaggu","Ravi"];
 const DAYS = [
@@ -288,7 +290,8 @@ $("#save").addEventListener("click",()=>{
   $("#save").disabled=true;
   const k=keyOf(name); loadedFor=k;
   POLL.child(k).set({name, v:vals.slice(), adults:hc.adults, kids:hc.kids, notes:$("#notes").value.trim().slice(0,500), t:Date.now()})
-    .then(()=>{ toast("Saved ✓ Opening dashboard"); $("#save").textContent="Saved ✓ (tap to update)"; setTimeout(()=>showTab("dash"),700); })
+    .then(()=>{ ROOM.update({lastAccessed:Date.now(), phase:"trip-poll"}).catch(()=>{});
+      toast("Saved ✓ Opening dashboard"); $("#save").textContent="Saved ✓ (tap to update)"; setTimeout(()=>showTab("dash"),700); })
     .catch(err=>{ toast("Couldn't save"); $("#status").textContent="Save failed: "+err.message; })
     .finally(()=>{ $("#save").disabled=false; });
 });

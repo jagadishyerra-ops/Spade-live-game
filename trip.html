@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Thanksgiving Trip – Pick Your Dates</title>
+<title>Mountaineers Thanksgiving Trip – Pick Your Dates</title>
 <style>
   :root{
     --bg:#faf7f2;--card:#fff;--ink:#2b2420;--muted:#7a6f66;--line:#e8e0d6;
@@ -20,6 +20,16 @@
   .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
   label.lbl{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  select,textarea{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-family:inherit}
+  textarea{min-height:80px;resize:vertical}
+  .hc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .step{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .step button{width:44px;height:44px;border:0;background:var(--bg);color:var(--ink);font-size:22px;font-weight:700;cursor:pointer}
+  .step span{flex:1;text-align:center;font-size:18px;font-weight:700}
+  .notes{margin:12px 0 0;padding:0;list-style:none}
+  .notes li{padding:8px 0;border-top:1px solid var(--line);font-size:14px;white-space:pre-wrap}
+  .notes li b{display:block;font-size:13px}
+  .tot{font-size:14px;margin-top:6px}
   input[type=text]{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
   .day{display:grid;grid-template-columns:78px 1fr 64px;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
   .day:last-child{border-bottom:0}
@@ -54,12 +64,24 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>🦃 Thanksgiving Trip</h1>
-  <p class="sub">Slide each day: <span style="color:var(--no)">No</span> · <span style="color:var(--maybe)">Maybe</span> · <span style="color:var(--yes)">Yes</span>, then tap Save. Everyone's answers show up below, live.</p>
+  <h1>🏔️ Mountaineers Thanksgiving Trip 🦃</h1>
+  <p class="sub">Pick your family, then slide each day: <span style="color:var(--no)">No</span> · <span style="color:var(--maybe)">Maybe</span> · <span style="color:var(--yes)">Yes</span>, then tap Save. Everyone's answers show up below, live.</p>
 
   <div class="card">
-    <label class="lbl" for="name">Your name</label>
-    <input id="name" type="text" maxlength="20" placeholder="e.g. Jag" autocomplete="off">
+    <label class="lbl" for="name">Family</label>
+    <select id="name">
+      <option value="">Choose your family…</option>
+      <option>Raghu</option><option>Srikanth</option><option>Srinu</option><option>Jaggu</option><option>Ravi</option>
+    </select>
+  </div>
+  <div class="card">
+    <label class="lbl">Headcount</label>
+    <div class="hc">
+      <div><div class="note" style="margin:0 0 4px">Adults</div>
+        <div class="step"><button data-hc="adults" data-d="-1" aria-label="Fewer adults">−</button><span id="adults">0</span><button data-hc="adults" data-d="1" aria-label="More adults">+</button></div></div>
+      <div><div class="note" style="margin:0 0 4px">Kids</div>
+        <div class="step"><button data-hc="kids" data-d="-1" aria-label="Fewer kids">−</button><span id="kids">0</span><button data-hc="kids" data-d="1" aria-label="More kids">+</button></div></div>
+    </div>
   </div>
   <div class="card">
     <div class="row" style="margin:0 0 6px">
@@ -69,7 +91,11 @@
     </div>
     <div id="days"></div>
   </div>
-  <div class="row"><button id="save" class="btn save">Save my dates</button></div>
+  <div class="card">
+    <label class="lbl" for="notes">Notes</label>
+    <textarea id="notes" maxlength="500" placeholder="e.g. Can drive, arriving late Wed, kids' ages…"></textarea>
+  </div>
+  <div class="row"><button id="save" class="btn save">Save our answers</button></div>
   <p class="note" id="status">Connecting…</p>
 
   <h2>Group results <span id="live" class="note"></span></h2>
@@ -99,13 +125,14 @@ const DAYS = [
 const LABEL = ["No","Maybe","Yes"];
 const COLOR = ["var(--no)","var(--maybe)","var(--yes)"];
 const vals = DAYS.map(()=>1);
+const hc = {adults:0, kids:0};
 let people = {};
 const $ = s=>document.querySelector(s);
 function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
 const keyOf = n => n.trim().toLowerCase().replace(/[.#$\[\]\/\s]+/g,"-").slice(0,30);
 
-try{const d=JSON.parse(load("tripDraft")||"null"); if(d){ if(d.name)$("#name").value=d.name; if(Array.isArray(d.v)&&d.v.length===DAYS.length) d.v.forEach((x,i)=>vals[i]=x);} }catch(e){}
+try{const d=JSON.parse(load("tripDraft")||"null"); if(d){ if(d.name)$("#name").value=d.name; if(d.hc){hc.adults=+d.hc.adults||0;hc.kids=+d.hc.kids||0;} if(d.notes)$("#notes").value=d.notes; if(Array.isArray(d.v)&&d.v.length===DAYS.length) d.v.forEach((x,i)=>vals[i]=x);} }catch(e){}
 
 function renderDays(){
   $("#days").innerHTML = DAYS.map((d,i)=>`
@@ -115,8 +142,14 @@ function renderDays(){
       <div class="val v${vals[i]}" id="v${i}">${LABEL[vals[i]]}</div>
     </div>`).join("");
 }
-function draft(){ store("tripDraft", JSON.stringify({name:$("#name").value, v:vals})); }
-function dirty(){ $("#save").textContent="Save my dates"; }
+function draft(){ store("tripDraft", JSON.stringify({name:$("#name").value, v:vals, hc, notes:$("#notes").value})); }
+function renderHC(){ $("#adults").textContent=hc.adults; $("#kids").textContent=hc.kids; }
+renderHC();
+document.querySelectorAll("[data-hc]").forEach(b=>b.addEventListener("click",()=>{
+  const k=b.dataset.hc; hc[k]=Math.max(0,Math.min(20,hc[k]+(+b.dataset.d))); renderHC(); draft(); dirty();
+}));
+document.addEventListener("input",e=>{ if(e.target.id==="notes"){ draft(); dirty(); } });
+function dirty(){ $("#save").textContent="Save our answers"; }
 renderDays();
 
 $("#days").addEventListener("input",e=>{
@@ -128,28 +161,30 @@ document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()
   vals.fill(+b.dataset.all); renderDays(); draft(); dirty();
 }));
 let loadedFor=null;
-$("#name").addEventListener("input",()=>{ draft(); loadMine(); });
-function loadMine(){
+$("#name").addEventListener("change",()=>{ draft(); loadMine(true); });
+function loadMine(force){
   const k=keyOf($("#name").value||""); const p=k&&people[k];
-  if(p && Array.isArray(p.v) && loadedFor!==k){
-    loadedFor=k; p.v.forEach((x,i)=>vals[i]=x); renderDays(); draft();
-    $("#save").textContent="Update my dates";
-  }
+  if(p && Array.isArray(p.v) && (force || loadedFor!==k)){
+    loadedFor=k; p.v.forEach((x,i)=>vals[i]=x);
+    hc.adults=+p.adults||0; hc.kids=+p.kids||0; $("#notes").value=p.notes||"";
+    renderDays(); renderHC(); draft();
+    $("#save").textContent="Update our answers";
+  } else if(!p){ dirty(); }
 }
 
 $("#save").addEventListener("click",()=>{
   const name=$("#name").value.trim();
-  if(!name){ toast("Add your name first"); $("#name").focus(); return; }
+  if(!name){ toast("Choose your family first"); $("#name").focus(); return; }
   $("#save").disabled=true;
   const k=keyOf(name); loadedFor=k;
-  POLL.child(k).set({name, v:vals.slice(), t:Date.now()})
+  POLL.child(k).set({name, v:vals.slice(), adults:hc.adults, kids:hc.kids, notes:$("#notes").value.trim().slice(0,500), t:Date.now()})
     .then(()=>{ toast("Saved ✓"); $("#save").textContent="Saved ✓ (tap to update)"; })
     .catch(err=>{ toast("Couldn't save"); $("#status").textContent="Save failed: "+err.message; })
     .finally(()=>{ $("#save").disabled=false; });
 });
 
 firebase.database().ref(".info/connected").on("value",s=>{
-  $("#status").textContent = s.val() ? "Connected. Your answers save for the whole group; type the same name later to change them." : "Connecting…";
+  $("#status").textContent = s.val() ? "Connected. Your answers save for the whole group; pick your family again later to change them." : "Connecting…";
 });
 let first=true;
 POLL.on("value",snap=>{
@@ -180,10 +215,13 @@ function renderResults(){
   if(best) summary+=`Longest stretch with no "No": <b>${DAYS[best.a][0]} ${DAYS[best.a][1]} → ${DAYS[best.b][0]} ${DAYS[best.b][1]}</b> (${best.len} day${best.len>1?"s":""})`;
   else summary+=`No single day works for everyone yet.`;
   summary+=`</div>`;
+  const A=ppl.reduce((s,p)=>s+(+p.adults||0),0), K=ppl.reduce((s,p)=>s+(+p.kids||0),0);
+  summary+=`<div class="tot">👥 Headcount so far: <b>${A}</b> adults, <b>${K}</b> kids (${A+K} total)</div>`;
   const head=`<tr><th></th>${DAYS.map(d=>`<th>${d[0]}<br>${d[1].split(" ")[1]}</th>`).join("")}</tr>`;
-  const rows=ppl.map(p=>`<tr><td class="n">${esc(String(p.name))}</td>${p.v.map(v=>`<td><span class="cell" style="background:${COLOR[v]||"#999"}" title="${LABEL[v]||""}"></span></td>`).join("")}</tr>`).join("");
+  const rows=ppl.map(p=>`<tr><td class="n">${esc(String(p.name))}<br><span class="note" style="font-weight:400">${+p.adults||0}A · ${+p.kids||0}K</span></td>${p.v.map(v=>`<td><span class="cell" style="background:${COLOR[v]||"#999"}" title="${LABEL[v]||""}"></span></td>`).join("")}</tr>`).join("");
   const sc=`<tr class="score"><td class="n">Score</td>${score.map((s,i)=>`<td style="color:${allYes[i]?"var(--yes)":noNo[i]?"var(--ink)":"var(--no)"}">${s}</td>`).join("")}</tr>`;
-  $("#out").innerHTML=summary+`<div style="overflow-x:auto;margin-top:12px"><table>${head}${rows}${sc}</table></div><p class="note">Score: Yes = 2, Maybe = 1, No = 0 (max ${n*2}). Red = someone said No.</p>`;
+  $("#out").innerHTML=summary+`<div style="overflow-x:auto;margin-top:12px"><table>${head}${rows}${sc}</table></div><p class="note">Score: Yes = 2, Maybe = 1, No = 0 (max ${n*2}). Red = someone said No.</p>`+
+    (ppl.some(p=>p.notes)?`<h3 style="font-size:15px;margin:14px 0 0">Notes</h3><ul class="notes">${ppl.filter(p=>p.notes).map(p=>`<li><b>${esc(String(p.name))}</b>${esc(String(p.notes))}</li>`).join("")}</ul>`:"");
 }
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 let tt; function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2000);}

@@ -16,36 +16,39 @@
 <meta name="twitter:image" content="https://spade-live-game.vercel.app/og-trip.png">
 <style>
   :root{
-    --bg:#faf7f2;--card:#fff;--ink:#2b2420;--muted:#7a6f66;--line:#e8e0d6;
-    --no:#d9534f;--maybe:#e6a23c;--yes:#3a9d5d;--accent:#b5541c;
+    --bg:#f6f4f0;--card:#fff;--ink:#1f2933;--ink2:#52606d;--muted:#7b8794;--line:#e4e7eb;
+    --no:#d64545;--maybe:#e8a33c;--yes:#2f9e60;--navy:#002855;--gold:#EAAA00;--accent:#002855;
   }
   @media (prefers-color-scheme:dark){
-    :root{--bg:#1b1816;--card:#262220;--ink:#f2ece6;--muted:#a79c92;--line:#3a3430;}
+    :root{--bg:#12161c;--card:#1c222b;--ink:#eef1f4;--ink2:#c1c8d0;--muted:#8c96a1;--line:#2c343f;
+      --no:#e46a6a;--maybe:#f0b453;--yes:#45b87a;--accent:#EAAA00;}
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);}
-  .wrap{max-width:520px;margin:0 auto;padding:16px 14px 40px}
-  h1{font-size:22px;margin:4px 0 2px}
-  h2{font-size:18px;margin:22px 0 8px}
-  .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+  .hero{background:linear-gradient(180deg,#00244d,#0d3f70);color:#fff;padding:18px 16px 16px;text-align:center}
+  .hero .k{color:var(--gold);font-weight:800;letter-spacing:2px;font-size:13px}
+  .hero h1{font-size:23px;margin:4px 0 2px}
+  .hero p{margin:0;font-size:13px;color:#cfd9e4}
+  .wrap{max-width:560px;margin:0 auto;padding:12px 14px 48px}
+  .tabs{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;position:sticky;top:8px;z-index:5;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .tab{flex:1;padding:10px;border:0;border-radius:9px;background:transparent;color:var(--ink2);font-size:15px;font-weight:700}
+  .tab.on{background:var(--navy);color:#fff}
+  @media (prefers-color-scheme:dark){.tab.on{background:var(--gold);color:#1a1a1a}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+  .card h3{margin:0 0 4px;font-size:15px}
+  .card .sub{margin:0 0 10px;font-size:12px;color:var(--muted)}
   label.lbl{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
   select,textarea{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-family:inherit}
   textarea{min-height:80px;resize:vertical}
   .hc{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .step{display:flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .step button{width:44px;height:44px;border:0;background:var(--bg);color:var(--ink);font-size:22px;font-weight:700;cursor:pointer}
+  .step button{width:44px;height:44px;border:0;background:var(--bg);color:var(--ink);font-size:22px;font-weight:700}
   .step span{flex:1;text-align:center;font-size:18px;font-weight:700}
-  .notes{margin:12px 0 0;padding:0;list-style:none}
-  .notes li{padding:8px 0;border-top:1px solid var(--line);font-size:14px;white-space:pre-wrap}
-  .notes li b{display:block;font-size:13px}
-  .tot{font-size:14px;margin-top:6px}
-  input[type=text]{width:100%;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
   .day{display:grid;grid-template-columns:78px 1fr 64px;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
   .day:last-child{border-bottom:0}
   .dname{font-weight:600;font-size:15px;line-height:1.1}
   .dname small{display:block;font-weight:400;color:var(--muted);font-size:12px}
-  .dname .tg{color:var(--accent);font-size:11px;font-weight:700}
+  .tg{color:#b5541c;font-size:11px;font-weight:700}
   input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:28px;background:transparent}
   input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--no),var(--maybe),var(--yes))}
   input[type=range]::-moz-range-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--no),var(--maybe),var(--yes))}
@@ -54,62 +57,150 @@
   .val{font-size:13px;font-weight:700;text-align:center;padding:5px 0;border-radius:8px;color:#fff}
   .v0{background:var(--no)}.v1{background:var(--maybe)}.v2{background:var(--yes)}
   .row{display:flex;gap:8px;margin-top:10px}
-  .btn{flex:1;display:block;text-align:center;padding:13px;border-radius:12px;border:0;font-size:16px;font-weight:700;cursor:pointer}
-  .save{background:var(--yes);color:#fff}
-  .save:disabled{opacity:.6}
+  .btn{flex:1;text-align:center;padding:13px;border-radius:12px;border:0;font-size:16px;font-weight:700}
+  .save{background:var(--yes);color:#fff}.save:disabled{opacity:.6}
   .sec{background:var(--card);color:var(--ink);border:1px solid var(--line)}
   .mini{flex:0 0 auto;padding:8px 12px;font-size:13px;font-weight:600}
   .note{font-size:12px;color:var(--muted);margin-top:8px}
-  table{border-collapse:collapse;width:100%;font-size:13px}
-  th,td{text-align:center;padding:5px 2px}
-  th{font-weight:600;color:var(--muted);font-size:11px}
-  td.n{text-align:left;font-weight:600;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .cell{display:inline-block;width:22px;height:22px;border-radius:6px}
-  .score td{font-weight:700;padding-top:8px}
-  .best{font-size:16px;line-height:1.45}
-  .best b{color:var(--yes)}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+  .hidden{display:none!important}
+  /* dashboard */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 6px;text-align:center}
+  .kpi b{display:block;font-size:24px;line-height:1.1}
+  .kpi span{font-size:11px;color:var(--muted)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--ink2);background:var(--bg)}
+  .chip.done{border-color:var(--yes);color:var(--ink)}
+  .chip.done::before{content:"✓ ";color:var(--yes);font-weight:700}
+  .seg{display:flex;gap:6px;margin-bottom:10px}
+  .seg button{flex:1;padding:8px 0;border:1px solid var(--line);background:var(--bg);color:var(--ink2);border-radius:9px;font-size:13px;font-weight:700}
+  .seg button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  @media (prefers-color-scheme:dark){.seg button.on{background:var(--gold);border-color:var(--gold);color:#1a1a1a}}
+  .win{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+  .win:first-of-type{border-top:0}
+  .rank{width:26px;height:26px;border-radius:50%;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:0 0 auto}
+  .win.top .rank{background:var(--gold);border-color:var(--gold);color:#1a1a1a}
+  .win .w{flex:1;min-width:0}
+  .win .w b{font-size:15px}
+  .win .w div{font-size:12px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:5px}
+  .bar i{display:block;height:100%;background:var(--navy);border-radius:4px}
+  @media (prefers-color-scheme:dark){.bar i{background:var(--gold)}}
+  .tagok{font-size:11px;font-weight:700;color:var(--yes);white-space:nowrap}
+  .tagbad{font-size:11px;font-weight:700;color:var(--no);white-space:nowrap}
+  .avail{display:grid;grid-template-columns:52px 1fr 34px;align-items:center;gap:8px;padding:5px 4px;border-radius:8px;cursor:pointer}
+  .avail.sel{background:var(--bg);outline:2px solid var(--accent)}
+  .avail .d{font-size:12px;font-weight:700;line-height:1.1}
+  .avail .d small{display:block;font-weight:400;color:var(--muted)}
+  .stack{display:flex;gap:2px;height:20px}
+  .stack i{display:block;height:100%}
+  .stack i:first-child{border-radius:4px 0 0 4px}.stack i:last-child{border-radius:0 4px 4px 0}
+  .stack i:only-child{border-radius:4px}
+  .avail .s{font-size:12px;font-weight:700;text-align:right;color:var(--ink2)}
+  .legend{display:flex;gap:12px;font-size:12px;color:var(--ink2);margin:0 0 8px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+  .detail{margin-top:10px;padding:12px;border-radius:10px;background:var(--bg);font-size:13px;line-height:1.5}
+  .detail h4{margin:0 0 6px;font-size:14px}
+  .grid{width:100%;border-collapse:separate;border-spacing:3px;font-size:12px}
+  .grid th{font-weight:600;color:var(--muted);font-size:10px;text-align:center}
+  .grid td{text-align:center}
+  .grid td.n{text-align:left;font-weight:700;font-size:12px;white-space:nowrap;cursor:pointer}
+  .grid td.n small{display:block;font-weight:400;color:var(--muted);font-size:10px}
+  .cell{display:flex;align-items:center;justify-content:center;width:100%;min-width:24px;height:26px;border-radius:6px;color:#fff;font-size:12px;font-weight:800}
+  .cell.empty{background:var(--line);color:var(--muted)}
+  .notes{margin:0;padding:0;list-style:none}
+  .notes li{padding:10px 0;border-top:1px solid var(--line);font-size:14px;white-space:pre-wrap}
+  .notes li:first-child{border-top:0;padding-top:0}
+  .notes li b{display:block;font-size:13px;margin-bottom:2px}
+  .empty-msg{font-size:13px;color:var(--muted);margin:0}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
   .toast.on{opacity:1}
 </style>
 </head>
 <body>
+<div class="hero">
+  <div class="k">MOUNTAINEERS</div>
+  <h1>🏔️ Thanksgiving Trip 🦃</h1>
+  <p>Nov 21 – 29 · Pick the days that work for your family</p>
+</div>
 <div class="wrap">
-  <h1>🏔️ Mountaineers Thanksgiving Trip 🦃</h1>
-  <p class="sub">Pick your family, then slide each day: <span style="color:var(--no)">No</span> · <span style="color:var(--maybe)">Maybe</span> · <span style="color:var(--yes)">Yes</span>, then tap Save. Everyone's answers show up below, live.</p>
+  <div class="tabs">
+    <button class="tab on" data-t="vote">🗳️ Our answers</button>
+    <button class="tab" data-t="dash">📊 Dashboard <span id="cnt"></span></button>
+  </div>
 
-  <div class="card">
-    <label class="lbl" for="name">Family</label>
-    <select id="name">
-      <option value="">Choose your family…</option>
-      <option>Raghu</option><option>Srikanth</option><option>Srinu</option><option>Jaggu</option><option>Ravi</option>
-    </select>
-  </div>
-  <div class="card">
-    <label class="lbl">Headcount</label>
-    <div class="hc">
-      <div><div class="note" style="margin:0 0 4px">Adults</div>
-        <div class="step"><button data-hc="adults" data-d="-1" aria-label="Fewer adults">−</button><span id="adults">0</span><button data-hc="adults" data-d="1" aria-label="More adults">+</button></div></div>
-      <div><div class="note" style="margin:0 0 4px">Kids</div>
-        <div class="step"><button data-hc="kids" data-d="-1" aria-label="Fewer kids">−</button><span id="kids">0</span><button data-hc="kids" data-d="1" aria-label="More kids">+</button></div></div>
+  <!-- VOTE -->
+  <section id="vote">
+    <div class="card">
+      <label class="lbl" for="name">Family</label>
+      <select id="name"><option value="">Choose your family…</option></select>
     </div>
-  </div>
-  <div class="card">
-    <div class="row" style="margin:0 0 6px">
-      <button class="btn sec mini" data-all="2">All Yes</button>
-      <button class="btn sec mini" data-all="1">All Maybe</button>
-      <button class="btn sec mini" data-all="0">All No</button>
+    <div class="card">
+      <label class="lbl">Headcount</label>
+      <div class="hc">
+        <div><div class="note" style="margin:0 0 4px">Adults</div>
+          <div class="step"><button data-hc="adults" data-d="-1" aria-label="Fewer adults">−</button><span id="adults">0</span><button data-hc="adults" data-d="1" aria-label="More adults">+</button></div></div>
+        <div><div class="note" style="margin:0 0 4px">Kids</div>
+          <div class="step"><button data-hc="kids" data-d="-1" aria-label="Fewer kids">−</button><span id="kids">0</span><button data-hc="kids" data-d="1" aria-label="More kids">+</button></div></div>
+      </div>
     </div>
-    <div id="days"></div>
-  </div>
-  <div class="card">
-    <label class="lbl" for="notes">Notes</label>
-    <textarea id="notes" maxlength="500" placeholder="e.g. Can drive, arriving late Wed, kids' ages…"></textarea>
-  </div>
-  <div class="row"><button id="save" class="btn save">Save our answers</button></div>
-  <p class="note" id="status">Connecting…</p>
+    <div class="card">
+      <label class="lbl">Slide each day: No · Maybe · Yes</label>
+      <div class="row" style="margin:0 0 6px">
+        <button class="btn sec mini" data-all="2">All Yes</button>
+        <button class="btn sec mini" data-all="1">All Maybe</button>
+        <button class="btn sec mini" data-all="0">All No</button>
+      </div>
+      <div id="days"></div>
+    </div>
+    <div class="card">
+      <label class="lbl" for="notes">Notes</label>
+      <textarea id="notes" maxlength="500" placeholder="e.g. Can drive, arriving late Wed, kids' ages…"></textarea>
+    </div>
+    <div class="row"><button id="save" class="btn save">Save our answers</button></div>
+    <p class="note" id="status">Connecting…</p>
+  </section>
 
-  <h2>Group results <span id="live" class="note"></span></h2>
-  <div class="card" id="out"><p class="note" style="margin:0">No one has answered yet.</p></div>
+  <!-- DASHBOARD -->
+  <section id="dash" class="hidden">
+    <div class="kpis">
+      <div class="kpi"><b id="kF">0/5</b><span>Families</span></div>
+      <div class="kpi"><b id="kA">0</b><span>Adults</span></div>
+      <div class="kpi"><b id="kK">0</b><span>Kids</span></div>
+      <div class="kpi"><b id="kT">0</b><span>Total</span></div>
+    </div>
+    <div class="card">
+      <h3>Who's answered</h3>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card">
+      <h3>🏆 Best dates</h3>
+      <p class="sub">Pick a trip length to rank every possible window (Yes = 2, Maybe = 1, No = 0).</p>
+      <div class="seg" id="len"></div>
+      <div id="wins"></div>
+    </div>
+
+    <div class="card">
+      <h3>Day by day</h3>
+      <p class="sub">Tap a day to see who's in.</p>
+      <div class="legend"><span><i style="background:var(--yes)"></i>Yes</span><span><i style="background:var(--maybe)"></i>Maybe</span><span><i style="background:var(--no)"></i>No</span></div>
+      <div id="avail"></div>
+      <div id="dayDetail" class="detail hidden"></div>
+    </div>
+
+    <div class="card">
+      <h3>Family grid</h3>
+      <p class="sub">✓ Yes · ? Maybe · ✕ No. Tap a family for details.</p>
+      <div style="overflow-x:auto"><table class="grid" id="grid"></table></div>
+      <div id="famDetail" class="detail hidden"></div>
+    </div>
+
+    <div class="card">
+      <h3>📝 Notes</h3>
+      <ul class="notes" id="notesList"></ul>
+    </div>
+  </section>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -128,48 +219,57 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const POLL = firebase.database().ref("tripPolls/thanksgiving-2026/people");
 
+const FAMILIES = ["Raghu","Srikanth","Srinu","Jaggu","Ravi"];
 const DAYS = [
   ["Sat","Nov 21"],["Sun","Nov 22"],["Mon","Nov 23"],["Tue","Nov 24"],["Wed","Nov 25"],
   ["Thu","Nov 26","Thanksgiving"],["Fri","Nov 27"],["Sat","Nov 28"],["Sun","Nov 29"]
 ];
-const LABEL = ["No","Maybe","Yes"];
+const LABEL = ["No","Maybe","Yes"], GLYPH = ["✕","?","✓"];
 const COLOR = ["var(--no)","var(--maybe)","var(--yes)"];
 const vals = DAYS.map(()=>1);
 const hc = {adults:0, kids:0};
-let people = {};
+let people = {}, tripLen = 3, selDay = null, selFam = null;
 const $ = s=>document.querySelector(s);
 function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
 const keyOf = n => n.trim().toLowerCase().replace(/[.#$\[\]\/\s]+/g,"-").slice(0,30);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dl = i => `${DAYS[i][0]} ${DAYS[i][1]}`;
 
-try{const d=JSON.parse(load("tripDraft")||"null"); if(d){ if(d.name)$("#name").value=d.name; if(d.hc){hc.adults=+d.hc.adults||0;hc.kids=+d.hc.kids||0;} if(d.notes)$("#notes").value=d.notes; if(Array.isArray(d.v)&&d.v.length===DAYS.length) d.v.forEach((x,i)=>vals[i]=x);} }catch(e){}
+$("#name").insertAdjacentHTML("beforeend", FAMILIES.map(f=>`<option>${f}</option>`).join(""));
+
+/* ---------- vote form ---------- */
+try{const d=JSON.parse(load("tripDraft")||"null"); if(d){
+  if(FAMILIES.includes(d.name))$("#name").value=d.name;
+  if(Array.isArray(d.v)&&d.v.length===DAYS.length) d.v.forEach((x,i)=>vals[i]=x);
+  if(d.hc){hc.adults=+d.hc.adults||0;hc.kids=+d.hc.kids||0;}
+  if(d.notes)$("#notes").value=d.notes;
+}}catch(e){}
 
 function renderDays(){
   $("#days").innerHTML = DAYS.map((d,i)=>`
     <div class="day">
       <div class="dname">${d[0]}<small>${d[1]}</small>${d[2]?`<span class="tg">${d[2]}</span>`:""}</div>
-      <input type="range" min="0" max="2" step="1" value="${vals[i]}" data-i="${i}" aria-label="${d[0]} ${d[1]}">
+      <input type="range" min="0" max="2" step="1" value="${vals[i]}" data-i="${i}" aria-label="${dl(i)}">
       <div class="val v${vals[i]}" id="v${i}">${LABEL[vals[i]]}</div>
     </div>`).join("");
 }
-function draft(){ store("tripDraft", JSON.stringify({name:$("#name").value, v:vals, hc, notes:$("#notes").value})); }
 function renderHC(){ $("#adults").textContent=hc.adults; $("#kids").textContent=hc.kids; }
-renderHC();
-document.querySelectorAll("[data-hc]").forEach(b=>b.addEventListener("click",()=>{
-  const k=b.dataset.hc; hc[k]=Math.max(0,Math.min(20,hc[k]+(+b.dataset.d))); renderHC(); draft(); dirty();
-}));
-document.addEventListener("input",e=>{ if(e.target.id==="notes"){ draft(); dirty(); } });
+function draft(){ store("tripDraft", JSON.stringify({name:$("#name").value, v:vals, hc, notes:$("#notes").value})); }
 function dirty(){ $("#save").textContent="Save our answers"; }
-renderDays();
+renderDays(); renderHC();
 
 $("#days").addEventListener("input",e=>{
   if(e.target.type!=="range")return;
   const i=+e.target.dataset.i, v=+e.target.value; vals[i]=v;
   const el=$("#v"+i); el.textContent=LABEL[v]; el.className="val v"+v; draft(); dirty();
 });
-document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()=>{
-  vals.fill(+b.dataset.all); renderDays(); draft(); dirty();
+document.querySelectorAll("[data-all]").forEach(b=>b.addEventListener("click",()=>{ vals.fill(+b.dataset.all); renderDays(); draft(); dirty(); }));
+document.querySelectorAll("[data-hc]").forEach(b=>b.addEventListener("click",()=>{
+  const k=b.dataset.hc; hc[k]=Math.max(0,Math.min(20,hc[k]+(+b.dataset.d))); renderHC(); draft(); dirty();
 }));
+$("#notes").addEventListener("input",()=>{ draft(); dirty(); });
+
 let loadedFor=null;
 $("#name").addEventListener("change",()=>{ draft(); loadMine(true); });
 function loadMine(force){
@@ -188,52 +288,137 @@ $("#save").addEventListener("click",()=>{
   $("#save").disabled=true;
   const k=keyOf(name); loadedFor=k;
   POLL.child(k).set({name, v:vals.slice(), adults:hc.adults, kids:hc.kids, notes:$("#notes").value.trim().slice(0,500), t:Date.now()})
-    .then(()=>{ toast("Saved ✓"); $("#save").textContent="Saved ✓ (tap to update)"; })
+    .then(()=>{ toast("Saved ✓ Opening dashboard"); $("#save").textContent="Saved ✓ (tap to update)"; setTimeout(()=>showTab("dash"),700); })
     .catch(err=>{ toast("Couldn't save"); $("#status").textContent="Save failed: "+err.message; })
     .finally(()=>{ $("#save").disabled=false; });
 });
 
+/* ---------- tabs ---------- */
+function showTab(t){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.t===t));
+  $("#vote").classList.toggle("hidden",t!=="vote");
+  $("#dash").classList.toggle("hidden",t!=="dash");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showTab(t.dataset.t)));
+
+/* ---------- live data ---------- */
 firebase.database().ref(".info/connected").on("value",s=>{
-  $("#status").textContent = s.val() ? "Connected. Your answers save for the whole group; pick your family again later to change them." : "Connecting…";
+  $("#status").textContent = s.val() ? "Connected. Answers save for the whole group; pick your family again later to change them." : "Connecting…";
 });
 let first=true;
 POLL.on("value",snap=>{
   people = snap.val()||{};
   if(first){ first=false; loadMine(); }
-  renderResults();
+  renderDash();
 }, err=>{ $("#status").textContent="Can't read results: "+err.message; });
 
-function renderResults(){
-  const ppl=Object.values(people).filter(p=>p&&Array.isArray(p.v)&&p.v.length===DAYS.length)
-    .sort((a,b)=>(a.t||0)-(b.t||0));
-  $("#live").textContent = ppl.length ? `· ${ppl.length} answered` : "";
-  if(!ppl.length){ $("#out").innerHTML='<p class="note" style="margin:0">No one has answered yet.</p>'; return; }
-  const n=ppl.length;
-  const score=DAYS.map((_,i)=>ppl.reduce((s,p)=>s+(+p.v[i]||0),0));
-  const allYes=DAYS.map((_,i)=>ppl.every(p=>p.v[i]===2));
-  const noNo=DAYS.map((_,i)=>ppl.every(p=>p.v[i]>0));
-  let best=null;
-  for(let a=0;a<DAYS.length;a++){ if(!noNo[a])continue;
-    let b=a; while(b+1<DAYS.length&&noNo[b+1])b++;
-    const len=b-a+1, sc=score.slice(a,b+1).reduce((x,y)=>x+y,0);
-    if(!best||len>best.len||(len===best.len&&sc>best.sc)) best={a,b,len,sc};
-    a=b;
-  }
-  const yesDays=DAYS.filter((_,i)=>allYes[i]).map(d=>`${d[0]} ${d[1]}`);
-  let summary=`<div class="best">`;
-  if(yesDays.length) summary+=`Everyone says Yes: <b>${yesDays.join(", ")}</b><br>`;
-  if(best) summary+=`Longest stretch with no "No": <b>${DAYS[best.a][0]} ${DAYS[best.a][1]} → ${DAYS[best.b][0]} ${DAYS[best.b][1]}</b> (${best.len} day${best.len>1?"s":""})`;
-  else summary+=`No single day works for everyone yet.`;
-  summary+=`</div>`;
-  const A=ppl.reduce((s,p)=>s+(+p.adults||0),0), K=ppl.reduce((s,p)=>s+(+p.kids||0),0);
-  summary+=`<div class="tot">👥 Headcount so far: <b>${A}</b> adults, <b>${K}</b> kids (${A+K} total)</div>`;
-  const head=`<tr><th></th>${DAYS.map(d=>`<th>${d[0]}<br>${d[1].split(" ")[1]}</th>`).join("")}</tr>`;
-  const rows=ppl.map(p=>`<tr><td class="n">${esc(String(p.name))}<br><span class="note" style="font-weight:400">${+p.adults||0}A · ${+p.kids||0}K</span></td>${p.v.map(v=>`<td><span class="cell" style="background:${COLOR[v]||"#999"}" title="${LABEL[v]||""}"></span></td>`).join("")}</tr>`).join("");
-  const sc=`<tr class="score"><td class="n">Score</td>${score.map((s,i)=>`<td style="color:${allYes[i]?"var(--yes)":noNo[i]?"var(--ink)":"var(--no)"}">${s}</td>`).join("")}</tr>`;
-  $("#out").innerHTML=summary+`<div style="overflow-x:auto;margin-top:12px"><table>${head}${rows}${sc}</table></div><p class="note">Score: Yes = 2, Maybe = 1, No = 0 (max ${n*2}). Red = someone said No.</p>`+
-    (ppl.some(p=>p.notes)?`<h3 style="font-size:15px;margin:14px 0 0">Notes</h3><ul class="notes">${ppl.filter(p=>p.notes).map(p=>`<li><b>${esc(String(p.name))}</b>${esc(String(p.notes))}</li>`).join("")}</ul>`:"");
+/* ---------- dashboard ---------- */
+function list(){
+  return Object.values(people).filter(p=>p&&Array.isArray(p.v)&&p.v.length===DAYS.length)
+    .sort((a,b)=>FAMILIES.indexOf(a.name)-FAMILIES.indexOf(b.name));
 }
-function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+$("#len").innerHTML=[2,3,4,5].map(n=>`<button data-n="${n}">${n} days</button>`).join("");
+$("#len").addEventListener("click",e=>{ const n=+e.target.dataset.n; if(n){tripLen=n; renderDash();} });
+
+function renderDash(){
+  const ppl=list(), n=ppl.length;
+  const A=ppl.reduce((s,p)=>s+(+p.adults||0),0), K=ppl.reduce((s,p)=>s+(+p.kids||0),0);
+  $("#cnt").textContent = n?`(${n})`:"";
+  $("#kF").textContent=`${n}/${FAMILIES.length}`; $("#kA").textContent=A; $("#kK").textContent=K; $("#kT").textContent=A+K;
+  const done=new Set(ppl.map(p=>p.name));
+  $("#chips").innerHTML=FAMILIES.map(f=>`<span class="chip ${done.has(f)?"done":""}">${f}</span>`).join("")
+    + (FAMILIES.length-done.size ? `<div class="note" style="width:100%;margin-top:6px">Waiting on ${FAMILIES.length-done.size}.</div>`:`<div class="note" style="width:100%;margin-top:6px">Everyone's in! 🎉</div>`);
+
+  // best windows
+  document.querySelectorAll("#len button").forEach(b=>b.classList.toggle("on",+b.dataset.n===tripLen));
+  if(!n){ $("#wins").innerHTML='<p class="empty-msg">Rankings appear once families answer.</p>'; }
+  else{
+    const max=tripLen*n*2, wins=[];
+    for(let a=0;a+tripLen<=DAYS.length;a++){
+      let sc=0, noFams=new Set(), yesAll=0;
+      for(let i=a;i<a+tripLen;i++){ ppl.forEach(p=>{ sc+=+p.v[i]||0; if(p.v[i]===0) noFams.add(p.name); }); }
+      const okFams=ppl.filter(p=>!noFams.has(p.name));
+      const ppl_ok=okFams.reduce((s,p)=>s+(+p.adults||0)+(+p.kids||0),0);
+      wins.push({a,b:a+tripLen-1,sc,no:[...noFams],ok:okFams.length,people:ppl_ok});
+    }
+    wins.sort((x,y)=> (x.no.length-y.no.length) || (y.sc-x.sc) || (x.a-y.a));
+    $("#wins").innerHTML=wins.slice(0,3).map((w,i)=>`
+      <div class="win ${i===0?"top":""}">
+        <div class="rank">${i+1}</div>
+        <div class="w">
+          <b>${dl(w.a)} → ${dl(w.b)}</b>
+          <div>${w.ok}/${n} families free${w.people?` · ${w.people} people`:""}${w.no.length?` · conflict: ${w.no.map(esc).join(", ")}`:""}</div>
+          <div class="bar" aria-hidden="true"><i style="width:${Math.round(w.sc/max*100)}%"></i></div>
+        </div>
+        <span class="${w.no.length?"tagbad":"tagok"}">${w.no.length?"✕ "+w.no.length+" No":"✓ All in"}</span>
+      </div>`).join("");
+  }
+
+  // day by day availability
+  $("#avail").innerHTML=DAYS.map((d,i)=>{
+    const c=[0,0,0]; ppl.forEach(p=>c[p.v[i]]++);
+    const seg=[2,1,0].filter(k=>c[k]).map(k=>`<i style="flex:${c[k]};background:${COLOR[k]}" title="${c[k]} ${LABEL[k]}"></i>`).join("")
+      || `<i style="flex:1;background:var(--line)"></i>`;
+    return `<div class="avail ${selDay===i?"sel":""}" data-day="${i}" role="button" aria-label="${dl(i)}: ${c[2]} yes, ${c[1]} maybe, ${c[0]} no">
+      <div class="d">${d[0]}<small>${d[1].split(" ")[1]}${d[2]?" 🦃":""}</small></div>
+      <div class="stack">${seg}</div>
+      <div class="s">${c[2]}✓</div></div>`;
+  }).join("");
+  renderDayDetail();
+
+  // family grid
+  const head=`<tr><th></th>${DAYS.map(d=>`<th>${d[0]}<br>${d[1].split(" ")[1]}</th>`).join("")}</tr>`;
+  const rows=FAMILIES.map(f=>{
+    const p=ppl.find(x=>x.name===f);
+    const cells=DAYS.map((_,i)=> p ? `<td><span class="cell" style="background:${COLOR[p.v[i]]}" title="${f} · ${dl(i)}: ${LABEL[p.v[i]]}">${GLYPH[p.v[i]]}</span></td>`
+                                    : `<td><span class="cell empty">·</span></td>`).join("");
+    return `<tr><td class="n" data-fam="${f}">${f}<small>${p?`${+p.adults||0}A · ${+p.kids||0}K`:"pending"}</small></td>${cells}</tr>`;
+  }).join("");
+  $("#grid").innerHTML=head+rows;
+  renderFamDetail();
+
+  // notes
+  const withNotes=ppl.filter(p=>p.notes);
+  $("#notesList").innerHTML = withNotes.length ? withNotes.map(p=>`<li><b>${esc(p.name)}</b>${esc(p.notes)}</li>`).join("")
+    : '<li class="empty-msg">No notes yet.</li>';
+}
+
+function renderDayDetail(){
+  const box=$("#dayDetail");
+  if(selDay===null){ box.classList.add("hidden"); return; }
+  const ppl=list(), i=selDay, g=[[],[],[]];
+  ppl.forEach(p=>g[p.v[i]].push(p));
+  const cnt=a=>a.reduce((s,p)=>s+(+p.adults||0)+(+p.kids||0),0);
+  const pending=FAMILIES.filter(f=>!ppl.some(p=>p.name===f));
+  const line=(k)=>`<div><span style="color:${COLOR[k]};font-weight:800">${GLYPH[k]} ${LABEL[k]}:</span> ${g[k].length?g[k].map(p=>esc(p.name)).join(", "):"—"}${k>0&&g[k].length?` <span style="color:var(--muted)">(${cnt(g[k])} people)</span>`:""}</div>`;
+  box.innerHTML=`<h4>${dl(i)}${DAYS[i][2]?" · "+DAYS[i][2]:""}</h4>${line(2)}${line(1)}${line(0)}${pending.length?`<div style="color:var(--muted)">Pending: ${pending.join(", ")}</div>`:""}`;
+  box.classList.remove("hidden");
+}
+function renderFamDetail(){
+  const box=$("#famDetail");
+  if(!selFam){ box.classList.add("hidden"); return; }
+  const p=list().find(x=>x.name===selFam);
+  if(!p){ box.innerHTML=`<h4>${selFam}</h4>Hasn't answered yet.`; box.classList.remove("hidden"); return; }
+  const by=k=>DAYS.map((_,i)=>i).filter(i=>p.v[i]===k).map(i=>DAYS[i][0]+" "+DAYS[i][1].split(" ")[1]).join(", ")||"—";
+  const when=p.t?new Date(p.t).toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):"";
+  box.innerHTML=`<h4>${esc(p.name)} family · ${+p.adults||0} adults, ${+p.kids||0} kids</h4>
+    <div><b style="color:var(--yes)">✓ Yes:</b> ${by(2)}</div>
+    <div><b style="color:var(--maybe)">? Maybe:</b> ${by(1)}</div>
+    <div><b style="color:var(--no)">✕ No:</b> ${by(0)}</div>
+    ${p.notes?`<div style="margin-top:6px">📝 ${esc(p.notes)}</div>`:""}
+    ${when?`<div class="note" style="margin-top:6px">Updated ${when}</div>`:""}`;
+  box.classList.remove("hidden");
+}
+$("#avail").addEventListener("click",e=>{
+  const r=e.target.closest("[data-day]"); if(!r)return;
+  const i=+r.dataset.day; selDay = selDay===i?null:i; renderDash();
+});
+$("#grid").addEventListener("click",e=>{
+  const c=e.target.closest("[data-fam]"); if(!c)return;
+  selFam = selFam===c.dataset.fam?null:c.dataset.fam; renderFamDetail();
+});
+
 let tt; function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("on"),2000);}
 </script>
 </body>
